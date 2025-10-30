@@ -1,0 +1,64 @@
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+.terraform/
+.terraform.lock.hcl
+terraform.tfplan
+tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Sensitive files
+*.pem
+*.key
+*.crt
+secrets.yml
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Docker
+docker-compose.override.yml
+
+# Documentation (except README)
+PROJECT-PLAN.md
+PROJECT-PLAN-V2.md
+COMPARISON.md
+*.draft.md
+notes.md
+TODO.md
+
+# AWS
+.aws/
+credentials
+
+# Logs
+*.log
+logs/
