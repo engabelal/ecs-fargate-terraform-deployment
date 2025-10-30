@@ -48,6 +48,7 @@ ENV/
 docker-compose.override.yml
 
 # Documentation (except README)
+docs/
 PROJECT-PLAN.md
 PROJECT-PLAN-V2.md
 COMPARISON.md
