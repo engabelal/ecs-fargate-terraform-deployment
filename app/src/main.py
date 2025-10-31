@@ -231,7 +231,7 @@ def home():
             <div class="logo-icon">⚡</div>
             <div class="logo-text">awsapp.cloudycode</div>
         </div>
-        <h1>🔗 URL Shortener</h1>
+        <h1>🔗 URL Shortener v2.0</h1>
         <p class="subtitle">
             <span class="badge">AWS ECS Fargate</span>
             <span class="badge">Terraform</span>
@@ -267,7 +267,8 @@ def home():
         </div>
         
         <div class="footer">
-            Powered by <a href="https://awsapp.cloudycode.dev">awsapp.cloudycode</a> | Built with AWS ECS Fargate & Terraform
+            <strong>ECS Fargate Terraform Deployment</strong><br>
+            Made by <a href="https://github.com/engabelal" target="_blank">Ahmed Belal</a> | Powered by AWS ECS Fargate & Terraform
         </div>
     </div>
 
