@@ -35,7 +35,7 @@ def home():
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>URL Shortener - AWS ECS Fargate</title>
+    <title>URL Shortener - AWS ECS Fargate Project</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -237,16 +237,16 @@ def home():
             <span class="badge">Terraform</span>
             <span class="badge">Blue/Green</span>
         </p>
-        
+
         <div class="input-group">
             <label for="url">Enter your long URL:</label>
             <input type="url" id="url" placeholder="https://example.com/very/long/url" required>
         </div>
-        
+
         <button onclick="shortenURL()">✨ Shorten URL</button>
-        
+
         <div class="error" id="error"></div>
-        
+
         <div class="result" id="result">
             <h3>✅ Your shortened URL:</h3>
             <div class="short-url">
@@ -254,7 +254,7 @@ def home():
                 <button class="copy-btn" onclick="copyURL()">📋 Copy</button>
             </div>
         </div>
-        
+
         <div class="stats">
             <div class="stat">
                 <div class="stat-value" id="urlCount">0</div>
@@ -265,7 +265,7 @@ def home():
                 <div class="stat-label">Fast & Secure</div>
             </div>
         </div>
-        
+
         <div class="footer">
             <strong>ECS Fargate Terraform Deployment</strong><br>
             Made by <a href="https://github.com/engabelal" target="_blank">Ahmed Belal</a> | Powered by AWS ECS Fargate & Terraform
@@ -274,31 +274,31 @@ def home():
 
     <script>
         let urlCount = 0;
-        
+
         async function shortenURL() {
             const urlInput = document.getElementById('url');
             const url = urlInput.value.trim();
             const errorDiv = document.getElementById('error');
             const resultDiv = document.getElementById('result');
-            
+
             errorDiv.classList.remove('show');
             resultDiv.classList.remove('show');
-            
+
             if (!url) {
                 errorDiv.textContent = 'Please enter a URL';
                 errorDiv.classList.add('show');
                 return;
             }
-            
+
             try {
                 const response = await fetch('/api/shorten', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ url: url })
                 });
-                
+
                 if (!response.ok) throw new Error('Failed to shorten URL');
-                
+
                 const data = await response.json();
                 document.getElementById('shortUrl').value = data.short_url;
                 resultDiv.classList.add('show');
@@ -309,12 +309,12 @@ def home():
                 errorDiv.classList.add('show');
             }
         }
-        
+
         function copyURL() {
             const shortUrl = document.getElementById('shortUrl');
             shortUrl.select();
             document.execCommand('copy');
-            
+
             const btn = event.target;
             const originalText = btn.textContent;
             btn.textContent = '✅ Copied!';
@@ -322,7 +322,7 @@ def home():
                 btn.textContent = originalText;
             }, 2000);
         }
-        
+
         document.getElementById('url').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') shortenURL();
         });
@@ -341,7 +341,7 @@ def shorten_url(request: URLRequest):
     """Create shortened URL"""
     original_url = str(request.url)
     short_code = generate_short_code(original_url)
-    
+
     # Save to DynamoDB
     try:
         table.put_item(Item={
@@ -351,7 +351,7 @@ def shorten_url(request: URLRequest):
         })
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
-    
+
     base_url = os.getenv('BASE_URL', 'http://localhost:8000')
     return URLResponse(
         short_code=short_code,
@@ -366,7 +366,7 @@ def redirect_url(short_code: str):
         response = table.get_item(Key={'short_code': short_code})
         if 'Item' not in response:
             raise HTTPException(status_code=404, detail="URL not found")
-        
+
         return RedirectResponse(url=response['Item']['original_url'])
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
