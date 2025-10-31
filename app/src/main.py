@@ -268,7 +268,7 @@ def home():
 
         <div class="footer">
             <strong>ECS Fargate Terraform Deployment</strong><br>
-            Made by <a href="https://github.com/engabelal" target="_blank">Ahmed Belal</a> | Powered by AWS ECS Fargate & Terraform
+            Made by  <a href="https://github.com/engabelal" target="_blank">Ahmed Belal</a> | Powered by AWS ECS Fargate & Terraform
         </div>
     </div>
 
