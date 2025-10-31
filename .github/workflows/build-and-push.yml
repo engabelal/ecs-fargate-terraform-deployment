@@ -48,10 +48,9 @@ jobs:
       - name: Image digest
         run: echo "Image pushed successfully!"
 
-      - name: Force ECS deployment
+      - name: Trigger CodeDeploy deployment
         run: |
-          aws ecs update-service \
-            --cluster url-shortener-cluster-dev \
-            --service url-shortener-service-dev \
-            --force-new-deployment \
+          aws deploy create-deployment \
+            --application-name url-shortener-app-dev \
+            --deployment-group-name url-shortener-dg-dev \
             --region ${{ env.AWS_REGION }}
