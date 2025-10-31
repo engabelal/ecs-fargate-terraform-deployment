@@ -35,12 +35,19 @@ jobs:
           role-to-assume: arn:aws:iam::501235162976:role/github-actions-ecs-deploy
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Force new deployment
+      - name: Update task definition and deploy
         run: |
-          aws ecs update-service \
-            --cluster ${{ env.ECS_CLUSTER }} \
-            --service ${{ env.ECS_SERVICE }} \
-            --force-new-deployment \
+          # Get current task definition
+          TASK_DEF=$(aws ecs describe-task-definition --task-definition url-shortener-dev --region ${{ env.AWS_REGION }})
+          
+          # Register new task definition with latest image
+          NEW_TASK_DEF=$(echo $TASK_DEF | jq '.taskDefinition | del(.taskDefinitionArn, .revision, .status, .requiresAttributes, .compatibilities, .registeredAt, .registeredBy)')
+          aws ecs register-task-definition --cli-input-json "$NEW_TASK_DEF" --region ${{ env.AWS_REGION }}
+          
+          # Trigger CodeDeploy
+          aws deploy create-deployment \
+            --application-name url-shortener-app-dev \
+            --deployment-group-name url-shortener-dg-dev \
             --region ${{ env.AWS_REGION }}
 
       - name: Wait for service stability
