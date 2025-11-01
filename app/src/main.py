@@ -231,7 +231,7 @@ def home():
             <div class="logo-icon">⚡</div>
             <div class="logo-text">awsapp.cloudycode</div>
         </div>
-        <h1>🔗 URL Shortener v4.0</h1>
+        <h1>🔗 URL Shortener v5.0</h1>
         <p class="subtitle">
             <span class="badge">AWS ECS Fargate</span>
             <span class="badge">Terraform</span>
@@ -372,4 +372,4 @@ def redirect_url(short_code: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
-# Blue/Green Deployment Test - CodeDeploy v4.0
+# Blue/Green Deployment Test - CodeDeploy v5.0
