@@ -8,28 +8,28 @@ Production-ready URL shortener deployed on **AWS ECS Fargate** using **Terraform
 
 ### Key Features:
 - ✅ **Fully Automated CI/CD** (Push → Build → Deploy)
-- ✅ **Zero Downtime Deployment** with ECS Rolling Updates
+- ✅ **Blue/Green Deployment** with AWS CodeDeploy
 - ✅ **ECS Fargate** serverless containers
 - ✅ **Application Load Balancer** with HTTPS
 - ✅ **DynamoDB** for data persistence
 - ✅ **S3 Backend** with DynamoDB locking for Terraform state
-- ✅ **Reusable Terraform Modules** (8 modules)
+- ✅ **Reusable Terraform Modules** (9 modules)
 - ✅ **GitHub Actions** with OIDC authentication
 - ✅ **Multi-environment Support** (dev/staging/prod)
 
 ### Tech Stack:
 - **App**: Python FastAPI + Beautiful Web UI
-- **Infrastructure**: AWS ECS Fargate, ALB, Route53, DynamoDB, ACM
+- **Infrastructure**: AWS ECS Fargate, ALB, Route53, DynamoDB, ACM, CodeDeploy
 - **IaC**: Terraform (modular architecture)
 - **CI/CD**: GitHub Actions with OIDC
-- **Deployment**: ECS Rolling Update (200% max, 100% min)
+- **Deployment**: Blue/Green with CodeDeploy
 - **Region**: eu-north-1
 
 ### Architecture:
 ```
-User → Route53 → ALB (HTTPS) → ECS Fargate (Rolling Update) → DynamoDB
-                    ↓
-              SSL Certificate (ACM)
+User → Route53 → ALB (HTTPS) → Blue/Green Target Groups → ECS Fargate → DynamoDB
+                    ↓                      ↓
+              SSL Certificate          CodeDeploy
 ```
 
 ### Live Demo:
@@ -38,7 +38,7 @@ User → Route53 → ALB (HTTPS) → ECS Fargate (Rolling Update) → DynamoDB
 
 ### Deployment Flow:
 ```
-Push to main → GitHub Actions → Build Docker → Push to ECR → Deploy to ECS → Live!
+Push to main → GitHub Actions → Build Docker → Push to ECR → CodeDeploy Blue/Green → Live!
 ```
 
 ---
@@ -82,8 +82,9 @@ git push origin main
 # GitHub Actions will automatically:
 # 1. Build Docker image
 # 2. Push to ECR
-# 3. Deploy to ECS
-# 4. Zero downtime update!
+# 3. Register new task definition
+# 4. Trigger CodeDeploy Blue/Green deployment
+# 5. Zero downtime update!
 ```
 
 ---
@@ -105,6 +106,7 @@ git push origin main
 │   │   ├── dynamodb/       # DynamoDB table
 │   │   ├── alb/            # Application Load Balancer
 │   │   ├── ecs/            # ECS Fargate cluster & service
+│   │   ├── codedeploy/     # CodeDeploy for Blue/Green
 │   │   └── route53/        # DNS records
 │   └── environments/
 │       └── dev/            # Dev environment config
@@ -140,17 +142,24 @@ git push origin main
 
 ### 5. ALB Module
 - Application Load Balancer
-- Target group with health checks
+- Blue target group
+- Green target group
 - HTTPS listener (SSL certificate)
 - HTTP → HTTPS redirect
 
 ### 6. ECS Module
 - Fargate cluster
 - Task definition (256 CPU, 512 Memory)
-- Service with rolling update
+- Service with CODE_DEPLOY controller
 - CloudWatch logs
 
-### 7. Route53 Module
+### 7. CodeDeploy Module
+- CodeDeploy application (ECS)
+- Deployment group
+- Blue/Green deployment config
+- Auto rollback on failure
+
+### 8. Route53 Module
 - A record with ALB alias
 - Domain: awsapp.cloudycode.dev
 
@@ -163,14 +172,16 @@ git push origin main
 2. **Build**: Docker image with multi-stage build
 3. **Tag**: 3 tags (version, SHA, latest)
 4. **Push**: To ECR repository
-5. **Deploy**: ECS force-new-deployment
-6. **Update**: Rolling update with zero downtime
+5. **Register**: New ECS task definition
+6. **Deploy**: CodeDeploy Blue/Green deployment
+7. **Update**: Zero downtime traffic shift
 
 ### Deployment Strategy
-- **Maximum**: 200% (can run 2x tasks)
-- **Minimum**: 100% (always keep desired count)
+- **Type**: Blue/Green with CodeDeploy
+- **Traffic Shift**: Instant (CodeDeployDefault.ECSAllAtOnce)
 - **Health Check**: `/health` endpoint
-- **Deregistration Delay**: 30 seconds
+- **Rollback**: Automatic on failure
+- **Termination**: Blue tasks after 5 minutes
 
 ### Security Scanning
 - **Trivy**: Container vulnerability scanning
