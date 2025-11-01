@@ -10,6 +10,12 @@ variable "project_name" {
   default     = "url-shortener"
 }
 
+variable "ecr_repository_name" {
+  description = "ECR repository name"
+  type        = string
+  default     = "url-shortener"
+}
+
 variable "environment" {
   description = "Environment name"
   type        = string
