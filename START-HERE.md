@@ -33,9 +33,26 @@ GITHUB_REPO="your-username/your-repo-name"
 #### 1.2 Terraform Variables
 ```bash
 # File: terraform/environments/dev/terraform.tfvars
-certificate_arn = "YOUR_ACM_CERTIFICATE_ARN"  # If using custom domain
-domain_name     = "your-domain.com"
-subdomain       = "dev.your-domain.com"
+
+# Network Configuration
+vpc_cidr            = "10.0.0.0/16"
+public_subnet_cidrs = ["10.0.1.0/24", "10.0.2.0/24"]
+availability_zones  = ["eu-north-1a", "eu-north-1b"]
+
+# SSL Certificate (if using custom domain)
+certificate_arn = "YOUR_ACM_CERTIFICATE_ARN"
+
+# Domain Configuration (if using custom domain)
+domain_name = "your-domain.com"
+subdomain   = "dev.your-domain.com"
+
+# Container Configuration
+container_image = "YOUR_AWS_ACCOUNT_ID.dkr.ecr.eu-north-1.amazonaws.com/url-shortener:latest"
+
+# Task Configuration
+task_cpu      = "256"
+task_memory   = "512"
+desired_count = 1
 ```
 
 ---
