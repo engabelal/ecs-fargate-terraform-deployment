@@ -106,11 +106,17 @@ fi
 
 echo -e "\n${YELLOW}Step 3: Attaching permissions policy...${NC}"
 
-# Path to the policy file (relative to project root)
-POLICY_FILE="terraform/modules/iam/github-actions-policy.json"
+# Get script directory and project root
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$( cd "$SCRIPT_DIR/../.." && pwd )"
+
+# Path to the policy file
+POLICY_FILE="$PROJECT_ROOT/terraform/modules/iam/github-actions-policy.json"
 
 if [ ! -f "$POLICY_FILE" ]; then
   echo -e "${RED}✗ Policy file not found: $POLICY_FILE${NC}"
+  echo -e "${YELLOW}Current directory: $(pwd)${NC}"
+  echo -e "${YELLOW}Looking for: $POLICY_FILE${NC}"
   exit 1
 fi
 
