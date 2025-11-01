@@ -686,6 +686,120 @@ Trigger: Push to main (app/ changes)
 
 ---
 
+### Security Scanning
+
+The project includes automated security scanning with every push:
+
+#### 🔍 **Trivy Scanner** - Application Security
+
+**What it scans:**
+- 🐍 Python dependencies (requirements.txt)
+- 🐳 Docker base images
+- 🔑 Hardcoded secrets in code
+- 🔓 Known vulnerabilities (CVEs)
+
+**Example Output:**
+```
+app/requirements.txt (pip)
+Total: 3 (CRITICAL: 1, HIGH: 2)
+
+┌──────────┬────────────────┬──────────┬───────────────────┬───────────────┐
+│ Library  │ Vulnerability  │ Severity │ Installed Version │ Fixed Version │
+├──────────┼────────────────┼──────────┼───────────────────┼───────────────┤
+│ fastapi  │ CVE-2023-12345 │ CRITICAL │ 0.104.1           │ 0.104.2       │
+│ uvicorn  │ CVE-2023-67890 │ HIGH     │ 0.24.0            │ 0.24.1        │
+└──────────┴────────────────┴──────────┴───────────────────┴───────────────┘
+```
+
+**Configuration:**
+```yaml
+- uses: aquasecurity/trivy-action@master
+  with:
+    scan-type: 'fs'              # Filesystem scan
+    scan-ref: './app'            # Scan app directory
+    severity: 'CRITICAL,HIGH'    # Only critical/high issues
+    exit-code: '0'               # Don't block deployment
+```
+
+---
+
+#### 🏗️ **Checkov Scanner** - Infrastructure Security
+
+**What it scans:**
+- 🔐 Security Groups (open ports)
+- 🔒 Encryption settings (S3, DynamoDB, ECR)
+- 🛡️ IAM policies (overly permissive)
+- 📊 Logging and monitoring (CloudWatch, ALB logs)
+- 🔑 KMS encryption usage
+
+**Example Findings:**
+```
+Check: CKV_AWS_65: "Ensure container insights are enabled on ECS cluster"
+  FAILED for resource: aws_ecs_cluster.main
+  File: /terraform/modules/ecs/main.tf:5-8
+  Guide: https://docs.bridgecrew.io/docs/bc_aws_general_31
+
+Check: CKV_AWS_119: "Ensure DynamoDB Tables are encrypted using KMS CMK"
+  FAILED for resource: aws_dynamodb_table.urls
+  File: /terraform/modules/dynamodb/main.tf:5-12
+```
+
+**Configuration:**
+```yaml
+- uses: bridgecrewio/checkov-action@master
+  with:
+    directory: terraform/        # Scan all Terraform files
+    framework: terraform         # IaC framework
+    soft_fail: true              # Don't block deployment
+```
+
+---
+
+#### 📊 **Security Scan Results**
+
+**View Results:**
+- GitHub Actions → Security Scan workflow
+- Check "Trivy Security Scan" and "Terraform Security Scan" jobs
+
+**Common Findings:**
+
+| Check | Severity | Impact | Fix Priority |
+|-------|----------|--------|-------------|
+| Container Insights | Medium | Better monitoring | ✅ Recommended |
+| ALB Access Logging | Medium | Audit trail | ✅ Recommended |
+| KMS Encryption | Low | Compliance | ⚠️ Production only |
+| Image Immutability | Low | Tag protection | ⚠️ Production only |
+| Point-in-Time Recovery | Medium | Data backup | ⚠️ Production only |
+
+**Why `soft_fail: true`?**
+- Scans run on every push/PR
+- Findings are reported but don't block deployment
+- Allows gradual security improvements
+- In production: Set `soft_fail: false` to enforce security
+
+---
+
+#### 🔐 **Security Best Practices**
+
+**Implemented:**
+- ✅ OIDC Authentication (no AWS credentials in GitHub)
+- ✅ HTTPS only (HTTP redirects to HTTPS)
+- ✅ Security Groups (least privilege)
+- ✅ IAM Roles (minimal permissions)
+- ✅ Secrets in environment variables (not hardcoded)
+- ✅ Container image scanning
+- ✅ Infrastructure code scanning
+
+**Recommended for Production:**
+- 🔒 Enable KMS encryption (DynamoDB, ECR)
+- 📊 Enable Container Insights
+- 📝 Enable ALB access logging
+- 🔄 Enable DynamoDB point-in-time recovery
+- 🛡️ Add WAF (Web Application Firewall)
+- 🔐 Use AWS Secrets Manager for sensitive data
+
+---
+
 ## 📊 Monitoring & Rollback
 
 ### CloudWatch Logs
