@@ -231,11 +231,12 @@ def home():
             <div class="logo-icon">⚡</div>
             <div class="logo-text">awsapp.cloudycode</div>
         </div>
-        <h1>🔗 URL Shortener v3.0</h1>
+        <h1>🔗 URL Shortener v4.0</h1>
         <p class="subtitle">
             <span class="badge">AWS ECS Fargate</span>
             <span class="badge">Terraform</span>
-            <span class="badge">Blue/Green</span>
+            <span class="badge">Blue/Green Deployment</span>
+            <span class="badge">CodeDeploy</span>
         </p>
 
         <div class="input-group">
