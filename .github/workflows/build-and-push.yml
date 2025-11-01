@@ -77,8 +77,8 @@ jobs:
 
       - name: Deploy with CodeDeploy
         run: |
-          # Create appspec.json
-          cat > appspec.json <<EOF
+          # Create appspec content
+          APPSPEC_CONTENT=$(cat <<EOF | jq -c .
           {
             "version": 0.0,
             "Resources": [
@@ -97,12 +97,13 @@ jobs:
             ]
           }
           EOF
+          )
           
           # Create deployment
           aws deploy create-deployment \
             --application-name url-shortener-dev \
             --deployment-group-name url-shortener-dg-dev \
-            --revision '{"revisionType":"AppSpecContent","appSpecContent":{"content":"'$(cat appspec.json | jq -c .)'","sha256":"'$(sha256sum appspec.json | awk '{print $1}')'"}}'  \
+            --revision revisionType=AppSpecContent,appSpecContent="{content='$APPSPEC_CONTENT'}" \
             --region ${{ env.AWS_REGION }}
           
           echo "✅ Blue/Green deployment triggered!"
