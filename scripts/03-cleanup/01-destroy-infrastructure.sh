@@ -66,17 +66,23 @@ cd "$PROJECT_ROOT/terraform/environments/${ENVIRONMENT}"
 # STEP 2: Terraform Destroy
 # ============================================================================
 
-echo -e "\n${YELLOW}Step 2: Destroying infrastructure...${NC}"
+echo -e "\n${YELLOW}Step 2: Initializing Terraform...${NC}"
+
+terraform init -reconfigure
+
+echo -e "${GREEN}✓ Terraform initialized${NC}"
+
+echo -e "\n${YELLOW}Step 3: Destroying infrastructure...${NC}"
 
 terraform destroy -auto-approve
 
 echo -e "${GREEN}✓ Infrastructure destroyed${NC}"
 
 # ============================================================================
-# STEP 3: Check for remaining resources
+# STEP 4: Check for remaining resources
 # ============================================================================
 
-echo -e "\n${YELLOW}Step 3: Checking for remaining resources...${NC}"
+echo -e "\n${YELLOW}Step 4: Checking for remaining resources...${NC}"
 
 # Get AWS Account ID
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)

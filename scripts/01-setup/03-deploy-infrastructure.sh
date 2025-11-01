@@ -67,7 +67,7 @@ echo -e "${GREEN}✓ terraform.tfvars found${NC}"
 
 echo -e "\n${YELLOW}Step 3: Initializing Terraform...${NC}"
 
-terraform init
+terraform init -reconfigure
 
 echo -e "${GREEN}✓ Terraform initialized${NC}"
 
