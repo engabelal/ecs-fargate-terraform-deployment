@@ -1,65 +1,208 @@
-# 🚀 ECS Fargate Terraform Deployment - URL Shortener
+# 🚀 ECS Fargate Blue/Green Deployment with Terraform & CodeDeploy
 
-> **Status**: ✅ Live & Production Ready
+> **Production-ready URL Shortener with Zero-Downtime Blue/Green Deployments**
 
-## 📋 Project Summary
+[![Terraform](https://img.shields.io/badge/Terraform-1.0+-623CE4?logo=terraform)](https://www.terraform.io/)
+[![AWS](https://img.shields.io/badge/AWS-ECS%20Fargate-FF9900?logo=amazon-aws)](https://aws.amazon.com/fargate/)
+[![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python)](https://www.python.org/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-Production-ready URL shortener deployed on **AWS ECS Fargate** using **Terraform** Infrastructure as Code with **fully automated CI/CD pipeline**.
+---
 
-### Key Features:
-- ✅ **Fully Automated CI/CD** (Push → Build → Deploy)
+## 📸 Live Application
+
+![Application Screenshot](images/app_website.png)
+
+**Live Demo:** https://dev.awsapp.cloudycode.dev
+
+---
+
+## 📋 Table of Contents
+
+- [Overview](#-overview)
+- [Architecture](#-architecture)
+- [Key Features](#-key-features)
+- [Prerequisites](#-prerequisites)
+- [Quick Start](#-quick-start)
+- [Blue/Green Deployment](#-bluegreen-deployment)
+- [Custom Domain Setup](#-custom-domain-setup)
+- [Project Structure](#-project-structure)
+- [Infrastructure Modules](#%EF%B8%8F-infrastructure-modules)
+- [CI/CD Pipeline](#-cicd-pipeline)
+- [Monitoring & Rollback](#-monitoring--rollback)
+- [Cost Breakdown](#-cost-breakdown)
+- [Cleanup](#-cleanup)
+- [Troubleshooting](#-troubleshooting)
+
+---
+
+## 🎯 Overview
+
+This project demonstrates a **production-ready** deployment of a URL shortener application on **AWS ECS Fargate** using:
+
+- ✅ **Infrastructure as Code** with Terraform (9 reusable modules)
 - ✅ **Blue/Green Deployment** with AWS CodeDeploy
-- ✅ **ECS Fargate** serverless containers
-- ✅ **Application Load Balancer** with HTTPS
-- ✅ **DynamoDB** for data persistence
-- ✅ **S3 Backend** with DynamoDB locking for Terraform state
-- ✅ **Reusable Terraform Modules** (9 modules)
-- ✅ **GitHub Actions** with OIDC authentication
-- ✅ **Multi-environment Support** (dev/staging/prod)
+- ✅ **Zero Downtime** deployments with automatic rollback
+- ✅ **CI/CD Pipeline** with GitHub Actions & OIDC
+- ✅ **HTTPS** with custom domain and SSL certificate
+- ✅ **Serverless Containers** with ECS Fargate
+- ✅ **NoSQL Database** with DynamoDB
 
-### Tech Stack:
-- **App**: Python FastAPI + Beautiful Web UI
-- **Infrastructure**: AWS ECS Fargate, ALB, Route53, DynamoDB, ACM, CodeDeploy
-- **IaC**: Terraform (modular architecture)
-- **CI/CD**: GitHub Actions with OIDC
-- **Deployment**: Blue/Green with CodeDeploy
-- **Region**: eu-north-1
+---
 
-### Architecture:
+## 🏗️ Architecture
+
 ```
-User → Route53 → ALB (HTTPS) → Blue/Green Target Groups → ECS Fargate → DynamoDB
-                    ↓                      ↓
-              SSL Certificate          CodeDeploy
+┌─────────────┐
+│   Internet  │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────────────────────────────────────────────┐
+│                     Route53 DNS                         │
+│              (awsapp.cloudycode.dev)                    │
+└──────────────────────┬──────────────────────────────────┘
+                       │
+                       ▼
+┌─────────────────────────────────────────────────────────┐
+│              Application Load Balancer                  │
+│                   (HTTPS - Port 443)                    │
+│                  SSL Certificate (ACM)                  │
+└──────────────────────┬──────────────────────────────────┘
+                       │
+       ┌───────────────┴───────────────┐
+       │                               │
+       ▼                               ▼
+┌──────────────┐              ┌──────────────┐
+│ Blue Target  │              │Green Target  │
+│    Group     │◄────────────►│    Group     │
+└──────┬───────┘              └──────┬───────┘
+       │         CodeDeploy          │
+       │      (Traffic Switch)       │
+       │                             │
+       ▼                             ▼
+┌──────────────────────────────────────────────────────────┐
+│              ECS Fargate Cluster                         │
+│  ┌────────────────┐         ┌────────────────┐          │
+│  │  Task (Blue)   │         │  Task (Green)  │          │
+│  │  Container     │         │  Container     │          │
+│  │  (Old Version) │         │  (New Version) │          │
+│  └────────┬───────┘         └────────┬───────┘          │
+└───────────┼──────────────────────────┼───────────────────┘
+            │                          │
+            └──────────┬───────────────┘
+                       │
+                       ▼
+            ┌──────────────────┐
+            │    DynamoDB      │
+            │   (urls table)   │
+            └──────────────────┘
 ```
 
-### Live Demo:
-- 🔵 **Dev**: https://dev.awsapp.cloudycode.dev
-- 🟢 **Prod**: https://awsapp.cloudycode.dev
+---
 
-### Deployment Flow:
-```
-Push to main → GitHub Actions → Build Docker → Push to ECR → CodeDeploy Blue/Green → Live!
-```
+## ✨ Key Features
+
+### Infrastructure
+- 🔵 **Blue/Green Deployment** - Zero downtime with instant rollback
+- 🏗️ **Modular Terraform** - 9 reusable, production-ready modules
+- 🔐 **Security First** - HTTPS only, IAM roles, security groups
+- 📦 **Serverless** - No EC2 instances to manage
+- 🌍 **Multi-AZ** - High availability across 2 availability zones
+- 🔄 **Auto Rollback** - Automatic rollback on deployment failure
+
+### CI/CD
+- ⚡ **Automated Pipeline** - Push to deploy in minutes
+- 🔒 **OIDC Authentication** - No long-lived AWS credentials
+- 🐳 **Multi-stage Docker** - Optimized container images
+- 🔍 **Security Scanning** - Trivy & Checkov integration
+- 📊 **CloudWatch Logs** - Centralized logging
+
+### Application
+- ✨ **Modern UI** - Beautiful gradient design
+- 🔗 **URL Shortening** - Fast and reliable
+- 📊 **Statistics** - Real-time URL tracking
+- 🏥 **Health Checks** - ALB health monitoring
+- ⚡ **High Performance** - DynamoDB for speed
+
+---
+
+## 📋 Prerequisites
+
+Before you begin, ensure you have:
+
+### Required
+- ✅ **AWS Account** with admin access
+- ✅ **Terraform** >= 1.0 ([Install](https://www.terraform.io/downloads))
+- ✅ **AWS CLI** configured ([Install](https://aws.amazon.com/cli/))
+- ✅ **Git** installed
+- ✅ **Docker** (for local testing)
+
+### For Custom Domain (Optional)
+- ✅ **Domain Name** (e.g., example.com)
+- ✅ **Route53 Hosted Zone** for your domain
+- ✅ **ACM SSL Certificate** in the same region
+
+> **💡 Tip:** You can use the project without a custom domain by accessing the ALB DNS directly.
 
 ---
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- AWS Account
-- Terraform >= 1.0
-- AWS CLI configured
-- Domain with Route53 hosted zone
-- SSL certificate in ACM
+### Step 1: Clone the Repository
 
-### 1. Setup Backend (One-time)
+```bash
+git clone https://github.com/engabelal/ecs-fargate-terraform-deployment.git
+cd ecs-fargate-terraform-deployment
+```
+
+### Step 2: Configure AWS Credentials
+
+```bash
+aws configure
+# Enter your AWS Access Key ID
+# Enter your AWS Secret Access Key
+# Default region: eu-north-1 (or your preferred region)
+```
+
+### Step 3: Setup Terraform Backend (One-time)
+
 ```bash
 cd terraform/backend-setup
 terraform init
 terraform apply
 ```
 
-### 2. Deploy Infrastructure
+**This creates:**
+- S3 bucket for Terraform state
+- DynamoDB table for state locking
+
+### Step 4: Configure Variables
+
+Edit `terraform/environments/dev/terraform.tfvars`:
+
+```hcl
+# Required
+project_name = "url-shortener"
+environment  = "dev"
+aws_region   = "eu-north-1"
+
+# Custom Domain (Optional - see Custom Domain Setup section)
+domain_name     = "cloudycode.dev"           # Your domain
+subdomain       = "dev.awsapp.cloudycode.dev" # Full subdomain
+certificate_arn = "arn:aws:acm:..."          # Your ACM certificate ARN
+
+# Container
+container_image = "501235162976.dkr.ecr.eu-north-1.amazonaws.com/url-shortener:latest"
+
+# Resources
+task_cpu    = "256"
+task_memory = "512"
+desired_count = 1
+```
+
+### Step 5: Deploy Infrastructure
+
 ```bash
 cd terraform/environments/dev
 terraform init
@@ -67,214 +210,604 @@ terraform plan
 terraform apply
 ```
 
-### 3. Setup GitHub Actions
-- Create OIDC provider in AWS
-- Create IAM role: `github-actions-ecs-deploy`
-- Add secrets to GitHub repository
+**⏱️ Deployment time:** ~5-7 minutes
 
-### 4. Deploy Application
+**This creates:**
+- VPC with 2 public subnets
+- Application Load Balancer
+- Blue & Green Target Groups
+- ECS Fargate Cluster & Service
+- CodeDeploy Application
+- DynamoDB Table
+- Route53 DNS Record
+- IAM Roles & Security Groups
+
+### Step 6: Setup GitHub Actions (Optional)
+
+For automated CI/CD:
+
+1. **Create OIDC Provider in AWS:**
 ```bash
-# Push to main branch
-git add .
-git commit -m "Deploy app"
-git push origin main
-
-# GitHub Actions will automatically:
-# 1. Build Docker image
-# 2. Push to ECR
-# 3. Register new task definition
-# 4. Trigger CodeDeploy Blue/Green deployment
-# 5. Zero downtime update!
+aws iam create-open-id-connect-provider \
+  --url https://token.actions.githubusercontent.com \
+  --client-id-list sts.amazonaws.com \
+  --thumbprint-list 6938fd4d98bab03faadb97b34396831e3780aea1
 ```
+
+2. **Create IAM Role:** `github-actions-ecs-deploy`
+
+3. **Add GitHub Secrets:**
+   - `AWS_REGION`: eu-north-1
+   - `ECR_REPOSITORY`: url-shortener
+
+### Step 7: Deploy Application
+
+**Option A: Manual (First Time)**
+```bash
+cd app
+docker build -t url-shortener:latest .
+# Push to ECR and update ECS service
+```
+
+**Option B: Automated (After GitHub Actions setup)**
+```bash
+git add .
+git commit -m "Deploy application"
+git push origin main
+```
+
+---
+
+## 🔵🟢 Blue/Green Deployment
+
+### How It Works
+
+Blue/Green deployment provides **zero-downtime** updates with instant rollback capability.
+
+#### Deployment Flow
+
+1. **Current State (Blue is Live)**
+   ```
+   ALB → Blue Target Group → Tasks (v1.0) ✅ LIVE
+         Green Target Group → Empty
+   ```
+
+2. **New Deployment Starts**
+   ```
+   ALB → Blue Target Group → Tasks (v1.0) ✅ LIVE (100% traffic)
+         Green Target Group → Tasks (v2.0) 🔄 Starting
+   ```
+
+3. **Health Checks Pass**
+   ```
+   ALB → Blue Target Group → Tasks (v1.0) ⏳ Draining
+         Green Target Group → Tasks (v2.0) ✅ LIVE (100% traffic)
+   ```
+
+4. **Cleanup (After 5 minutes)**
+   ```
+   ALB → Blue Target Group → Empty
+         Green Target Group → Tasks (v2.0) ✅ LIVE
+   ```
+
+### Visual Proof
+
+![CodeDeploy Deployment](images/codedeploy01.png)
+*CodeDeploy deployment in progress*
+
+![Blue/Green Switch](images/codedeploy02.png)
+*Traffic shifting from Blue to Green*
+
+![Deployment Complete](images/finishBluegreen.png)
+*Successful Blue/Green deployment*
+
+### Deployment Commands
+
+**Trigger Deployment:**
+```bash
+# Make changes to app/
+git add app/
+git commit -m "Update application"
+git push origin main
+```
+
+**Monitor Deployment:**
+```bash
+# Via AWS CLI
+aws deploy get-deployment \
+  --deployment-id <DEPLOYMENT_ID> \
+  --region eu-north-1
+
+# Via Console
+# https://console.aws.amazon.com/codesuite/codedeploy/deployments
+```
+
+**Manual Rollback:**
+```bash
+# Stop current deployment (triggers rollback)
+aws deploy stop-deployment \
+  --deployment-id <DEPLOYMENT_ID> \
+  --auto-rollback-enabled \
+  --region eu-north-1
+```
+
+---
+
+## 🌐 Custom Domain Setup
+
+### Prerequisites
+
+1. **Domain Name** - Purchase from Route53 or any registrar
+2. **Route53 Hosted Zone** - Create for your domain
+3. **SSL Certificate** - Request from ACM
+
+### Step-by-Step Guide
+
+#### 1. Create Route53 Hosted Zone
+
+```bash
+aws route53 create-hosted-zone \
+  --name cloudycode.dev \
+  --caller-reference $(date +%s)
+```
+
+**Note the Name Servers** and update them at your domain registrar.
+
+#### 2. Request SSL Certificate
+
+```bash
+aws acm request-certificate \
+  --domain-name "*.awsapp.cloudycode.dev" \
+  --validation-method DNS \
+  --region eu-north-1
+```
+
+**Validate Certificate:**
+- Go to ACM Console
+- Copy CNAME record
+- Add to Route53 Hosted Zone
+- Wait for validation (~5-10 minutes)
+
+#### 3. Update Terraform Variables
+
+```hcl
+# terraform/environments/dev/terraform.tfvars
+domain_name     = "cloudycode.dev"
+subdomain       = "dev.awsapp.cloudycode.dev"
+certificate_arn = "arn:aws:acm:eu-north-1:123456789:certificate/xxx"
+```
+
+#### 4. Apply Changes
+
+```bash
+terraform apply
+```
+
+#### 5. Verify
+
+```bash
+curl https://dev.awsapp.cloudycode.dev/health
+```
+
+### Without Custom Domain
+
+If you don't have a domain, you can:
+
+1. **Comment out Route53 module** in `main.tf`
+2. **Access via ALB DNS:**
+   ```bash
+   terraform output alb_dns_name
+   # url-shortener-alb-dev-xxx.eu-north-1.elb.amazonaws.com
+   ```
+3. **Use HTTP** (remove HTTPS listener or use self-signed cert)
 
 ---
 
 ## 📁 Project Structure
 
 ```
-.
+ecs-fargate-terraform-deployment/
 ├── app/
-│   ├── src/main.py          # FastAPI application
-│   ├── Dockerfile           # Multi-stage Docker build
-│   └── requirements.txt     # Python dependencies
+│   ├── src/
+│   │   └── main.py              # FastAPI application
+│   ├── Dockerfile               # Multi-stage Docker build
+│   └── requirements.txt         # Python dependencies
+│
 ├── terraform/
-│   ├── backend-setup/       # S3 + DynamoDB for state
-│   ├── modules/
-│   │   ├── vpc/            # VPC with public subnets
-│   │   ├── security/       # Security groups
-│   │   ├── iam/            # IAM roles & policies
-│   │   ├── dynamodb/       # DynamoDB table
-│   │   ├── alb/            # Application Load Balancer
-│   │   ├── ecs/            # ECS Fargate cluster & service
-│   │   ├── codedeploy/     # CodeDeploy for Blue/Green
-│   │   └── route53/        # DNS records
+│   ├── backend-setup/           # S3 + DynamoDB for state
+│   │   ├── main.tf
+│   │   └── variables.tf
+│   │
+│   ├── modules/                 # Reusable Terraform modules
+│   │   ├── vpc/                 # VPC, Subnets, IGW
+│   │   ├── security/            # Security Groups
+│   │   ├── iam/                 # IAM Roles & Policies
+│   │   ├── dynamodb/            # DynamoDB Table
+│   │   ├── ecr/                 # ECR Repository
+│   │   ├── alb/                 # ALB + Blue/Green TGs
+│   │   ├── ecs/                 # ECS Cluster & Service
+│   │   ├── codedeploy/          # CodeDeploy App & DG
+│   │   └── route53/             # DNS Records
+│   │
 │   └── environments/
-│       └── dev/            # Dev environment config
-├── .github/workflows/
-│   ├── build-and-push.yml  # Automated build & deploy
-│   └── security-scan.yml   # Trivy & Checkov scans
-└── scripts/
-    └── build-and-push.sh   # Manual build script
+│       └── dev/                 # Dev environment
+│           ├── main.tf          # Module composition
+│           ├── variables.tf     # Variable definitions
+│           ├── terraform.tfvars # Variable values
+│           └── outputs.tf       # Output values
+│
+├── .github/
+│   └── workflows/
+│       ├── build-and-push.yml   # CI/CD Pipeline
+│       └── security-scan.yml    # Security scanning
+│
+├── images/                      # Screenshots
+│   ├── app_website.png
+│   ├── codedeploy01.png
+│   ├── codedeploy02.png
+│   └── finishBluegreen.png
+│
+├── appspec.yml                  # CodeDeploy specification
+└── README.md                    # This file
 ```
 
 ---
 
 ## 🏗️ Infrastructure Modules
 
-### 1. VPC Module
-- VPC with public subnets across 2 AZs
+### 1. VPC Module (`terraform/modules/vpc/`)
+- VPC with CIDR 10.0.0.0/16
+- 2 Public Subnets across different AZs
 - Internet Gateway
-- Route tables
+- Route Tables
 
-### 2. Security Module
-- ALB security group (80, 443)
-- ECS security group (8000)
+### 2. Security Module (`terraform/modules/security/`)
+- **ALB Security Group:** Ports 80, 443
+- **ECS Security Group:** Port 8000 (from ALB only)
 
-### 3. IAM Module
-- ECS task execution role
-- ECS task role (DynamoDB access)
-- CodeDeploy role (if needed)
+### 3. IAM Module (`terraform/modules/iam/`)
+- **ECS Task Execution Role:** Pull images, write logs
+- **ECS Task Role:** DynamoDB access
+- **CodeDeploy Role:** ECS deployment permissions
 
-### 4. DynamoDB Module
-- Table: `urls-dev`
-- Hash key: `short_code`
-- On-demand billing
+### 4. DynamoDB Module (`terraform/modules/dynamodb/`)
+- Table: `urls-{environment}`
+- Hash Key: `short_code`
+- Billing: On-demand
 
-### 5. ALB Module
+### 5. ECR Module (`terraform/modules/ecr/`)
+- Repository: `url-shortener`
+- Image Scanning: Enabled
+- Lifecycle Policy: Keep last 10 images
+
+### 6. ALB Module (`terraform/modules/alb/`)
 - Application Load Balancer
-- Blue target group
-- Green target group
-- HTTPS listener (SSL certificate)
-- HTTP → HTTPS redirect
+- **Blue Target Group:** Production traffic
+- **Green Target Group:** New deployments
+- HTTPS Listener (Port 443)
+- HTTP → HTTPS Redirect
 
-### 6. ECS Module
-- Fargate cluster
-- Task definition (256 CPU, 512 Memory)
-- Service with CODE_DEPLOY controller
-- CloudWatch logs
+### 7. ECS Module (`terraform/modules/ecs/`)
+- Fargate Cluster
+- Task Definition (256 CPU, 512 MB)
+- Service with `CODE_DEPLOY` controller
+- CloudWatch Log Group
 
-### 7. CodeDeploy Module
-- CodeDeploy application (ECS)
-- Deployment group
-- Blue/Green deployment config
-- Auto rollback on failure
+### 8. CodeDeploy Module (`terraform/modules/codedeploy/`)
+- Application: ECS platform
+- Deployment Group
+- Blue/Green Configuration
+- Auto Rollback on failure
 
-### 8. Route53 Module
-- A record with ALB alias
-- Domain: awsapp.cloudycode.dev
+### 9. Route53 Module (`terraform/modules/route53/`)
+- A Record (Alias to ALB)
+- Subdomain configuration
 
 ---
 
 ## 🔄 CI/CD Pipeline
 
-### Automated Workflow
-1. **Trigger**: Push to `main` branch (app/ changes)
-2. **Build**: Docker image with multi-stage build
-3. **Tag**: 3 tags (version, SHA, latest)
-4. **Push**: To ECR repository
-5. **Register**: New ECS task definition
-6. **Deploy**: CodeDeploy Blue/Green deployment
-7. **Update**: Zero downtime traffic shift
+### GitHub Actions Workflow
+
+```yaml
+Trigger: Push to main (app/ changes)
+  ↓
+1. Checkout Code
+  ↓
+2. Configure AWS Credentials (OIDC)
+  ↓
+3. Login to ECR
+  ↓
+4. Build Docker Image
+   - Multi-stage build
+   - Platform: linux/amd64
+  ↓
+5. Tag Image
+   - Version tag (v20241101-123456)
+   - Git SHA tag
+   - Latest tag
+  ↓
+6. Push to ECR
+  ↓
+7. Register New Task Definition
+   - Update image
+   - Keep other settings
+  ↓
+8. Create CodeDeploy Deployment
+   - AppSpec content
+   - Blue/Green deployment
+  ↓
+9. Monitor Deployment
+   - Health checks
+   - Traffic shift
+   - Cleanup
+```
 
 ### Deployment Strategy
-- **Type**: Blue/Green with CodeDeploy
-- **Traffic Shift**: Instant (CodeDeployDefault.ECSAllAtOnce)
-- **Health Check**: `/health` endpoint
-- **Rollback**: Automatic on failure
-- **Termination**: Blue tasks after 5 minutes
 
-### Security Scanning
-- **Trivy**: Container vulnerability scanning
-- **Checkov**: IaC security scanning
-
----
-
-## 🔐 Security
-
-- ✅ HTTPS only (HTTP redirects to HTTPS)
-- ✅ SSL certificate from ACM
-- ✅ Security groups with least privilege
-- ✅ IAM roles with minimal permissions
-- ✅ No hardcoded credentials
-- ✅ OIDC authentication for GitHub Actions
-- ✅ Container vulnerability scanning
-- ✅ IaC security scanning
+| Setting | Value |
+|---------|-------|
+| **Type** | Blue/Green |
+| **Traffic Shift** | All at once (CodeDeployDefault.ECSAllAtOnce) |
+| **Health Check** | `/health` endpoint |
+| **Rollback** | Automatic on failure |
+| **Termination Wait** | 5 minutes |
 
 ---
 
-## 📊 Monitoring
+## 📊 Monitoring & Rollback
 
 ### CloudWatch Logs
+
 ```bash
-aws logs tail /ecs/url-shortener-dev --follow
+# Tail logs in real-time
+aws logs tail /ecs/url-shortener-dev --follow --region eu-north-1
+
+# Filter errors
+aws logs filter-log-events \
+  --log-group-name /ecs/url-shortener-dev \
+  --filter-pattern "ERROR" \
+  --region eu-north-1
 ```
 
 ### ECS Service Status
+
 ```bash
 aws ecs describe-services \
   --cluster url-shortener-cluster-dev \
   --services url-shortener-service-dev \
+  --region eu-north-1 \
+  --query 'services[0].{Status:status,Running:runningCount,Desired:desiredCount}'
+```
+
+### CodeDeploy Deployments
+
+```bash
+# List recent deployments
+aws deploy list-deployments \
+  --application-name url-shortener-dev \
+  --deployment-group-name url-shortener-dg-dev \
+  --region eu-north-1
+
+# Get deployment details
+aws deploy get-deployment \
+  --deployment-id d-XXXXXXXXX \
   --region eu-north-1
 ```
 
-### Health Check
+### Manual Rollback
+
+**Option 1: Stop Current Deployment**
 ```bash
-curl https://awsapp.cloudycode.dev/health
+aws deploy stop-deployment \
+  --deployment-id d-XXXXXXXXX \
+  --auto-rollback-enabled \
+  --region eu-north-1
+```
+
+**Option 2: Via AWS Console**
+1. Go to CodeDeploy Console
+2. Select deployment
+3. Click "Stop deployment"
+4. Choose "Stop and roll back"
+
+**Option 3: Redeploy Previous Version**
+1. Go to CodeDeploy Console
+2. Find previous successful deployment
+3. Click "Redeploy"
+
+---
+
+## 💰 Cost Breakdown
+
+### Monthly Costs (Dev Environment)
+
+| Service | Usage | Cost |
+|---------|-------|------|
+| **ECS Fargate** | 1 task (0.25 vCPU, 0.5 GB) | ~$10 |
+| **Application Load Balancer** | 1 ALB | ~$16 |
+| **DynamoDB** | On-demand, low traffic | ~$1 |
+| **Route53** | 1 hosted zone | $0.50 |
+| **ECR** | <500 MB storage | Free |
+| **CloudWatch Logs** | <5 GB | Free |
+| **Data Transfer** | <1 GB | Free |
+| **CodeDeploy** | ECS deployments | Free |
+| **S3** | Terraform state | <$0.10 |
+| **Total** | | **~$27-30/month** |
+
+### Cost Optimization Tips
+
+1. **Use Fargate Spot** - Save up to 70%
+2. **Reduce Task Count** - Scale down in dev
+3. **Delete Unused Resources** - Clean up regularly
+4. **Use Reserved Capacity** - For production
+5. **Enable S3 Lifecycle** - Delete old logs
+
+---
+
+## 🧹 Cleanup
+
+### Destroy All Resources
+
+```bash
+cd terraform/environments/dev
+
+# Destroy infrastructure
+terraform destroy -auto-approve
+
+# Delete ECR images (if needed)
+aws ecr batch-delete-image \
+  --repository-name url-shortener \
+  --region eu-north-1 \
+  --image-ids "$(aws ecr list-images --repository-name url-shortener --region eu-north-1 --query 'imageIds[*]' --output json)"
+
+# Delete ECR repository
+aws ecr delete-repository \
+  --repository-name url-shortener \
+  --region eu-north-1 \
+  --force
+
+# Delete Route53 hosted zone (if created)
+aws route53 delete-hosted-zone --id Z08774931MPILO50GC8SS
+
+# Delete S3 backend bucket
+aws s3 rb s3://terraform-state-url-shortener-ACCOUNT_ID --force
+```
+
+### Verify Cleanup
+
+```bash
+# Check for remaining resources
+aws ecs list-clusters --region eu-north-1
+aws elbv2 describe-load-balancers --region eu-north-1
+aws ec2 describe-vpcs --region eu-north-1
+aws dynamodb list-tables --region eu-north-1
 ```
 
 ---
 
-## 🎯 Features
+## 🔧 Troubleshooting
 
-### Application
-- ✨ Beautiful gradient UI
-- 🔗 URL shortening with DynamoDB
-- 📊 Real-time statistics
-- 📋 One-click copy
-- ⚡ Fast & responsive
-- 🏥 Health check endpoint
+### Common Issues
 
-### Infrastructure
-- 🚀 Fully automated deployment
-- 🔄 Zero downtime updates
-- 📦 Modular Terraform architecture
-- 🔐 Secure by default
-- 📈 Scalable & production-ready
-- 🌍 Multi-environment support
+#### 1. Terraform State Lock
+
+**Error:** `Error acquiring the state lock`
+
+**Solution:**
+```bash
+# Force unlock (use with caution)
+terraform force-unlock <LOCK_ID>
+```
+
+#### 2. ECR Repository Not Empty
+
+**Error:** `RepositoryNotEmptyException`
+
+**Solution:**
+```bash
+# Delete all images first
+aws ecr batch-delete-image \
+  --repository-name url-shortener \
+  --region eu-north-1 \
+  --image-ids "$(aws ecr list-images --repository-name url-shortener --region eu-north-1 --query 'imageIds[*]' --output json)"
+```
+
+#### 3. Certificate Validation Pending
+
+**Error:** Certificate stuck in "Pending validation"
+
+**Solution:**
+1. Check CNAME record in Route53
+2. Ensure record matches ACM validation
+3. Wait 5-10 minutes for DNS propagation
+
+#### 4. ECS Tasks Failing Health Checks
+
+**Error:** Tasks keep restarting
+
+**Solution:**
+```bash
+# Check logs
+aws logs tail /ecs/url-shortener-dev --follow
+
+# Common causes:
+# - Wrong container port (should be 8000)
+# - Missing environment variables
+# - DynamoDB permissions
+```
+
+#### 5. CodeDeploy Deployment Failed
+
+**Error:** Deployment fails immediately
+
+**Solution:**
+1. Check ECS service has CODE_DEPLOY controller
+2. Verify target groups exist
+3. Check IAM role permissions
+4. Review CloudWatch logs
 
 ---
 
-## 💰 Cost Optimization
+## 📚 Additional Resources
 
-- **ECS Fargate**: Pay per second (1 task = ~$10/month)
-- **ALB**: ~$16/month
-- **DynamoDB**: On-demand (pay per request)
-- **Route53**: $0.50/month per hosted zone
-- **S3**: Minimal (state files)
-- **Total**: ~$30-40/month for dev environment
+### Documentation
+- [AWS ECS Best Practices](https://docs.aws.amazon.com/AmazonECS/latest/bestpracticesguide/)
+- [Terraform AWS Provider](https://registry.terraform.io/providers/hashicorp/aws/latest/docs)
+- [CodeDeploy for ECS](https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-steps-ecs.html)
+
+### Related Projects
+- [Terraform ECS Modules](https://github.com/terraform-aws-modules/terraform-aws-ecs)
+- [AWS Samples](https://github.com/aws-samples)
 
 ---
 
-## 📚 Documentation
+## 🤝 Contributing
 
-- 📖 [Setup Guide](docs/SETUP-GUIDE.md) - Complete setup instructions
-- 🚀 [Deployment Guide](docs/DEPLOYMENT.md) - Deployment and troubleshooting
-- 🌍 [Multi-Environment Setup](docs/ENVIRONMENTS.md) - Dev/Staging/Prod configuration
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ---
 
 ## 📝 License
 
-MIT License - feel free to use for your projects!
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
 ## 👤 Author
 
 **Ahmed Belal**
+
 - GitHub: [@engabelal](https://github.com/engabelal)
-- Project: [ecs-fargate-terraform-deployment](https://github.com/engabelal/ecs-fargate-terraform-deployment)
+- LinkedIn: [Ahmed Belal](https://linkedin.com/in/engabelal)
+- Email: eng.ahmed.belal@example.com
 
 ---
 
-⭐ If you find this project helpful, please give it a star!
+## ⭐ Show Your Support
+
+If this project helped you, please give it a ⭐️!
+
+---
+
+## 🙏 Acknowledgments
+
+- AWS for excellent documentation
+- Terraform community for modules and examples
+- FastAPI for the amazing framework
+
+---
+
+<div align="center">
+
+**Made with ❤️ by Ahmed Belal**
+
+[⬆ Back to Top](#-ecs-fargate-bluegreen-deployment-with-terraform--codedeploy)
+
+</div>
