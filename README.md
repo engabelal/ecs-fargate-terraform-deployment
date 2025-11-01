@@ -23,7 +23,9 @@
 
 ## 🎬 Quick Start
 
-**New to this project?** → [📖 START HERE - Step-by-Step Guide](START-HERE.md)
+**🚀 New to this project?** → [📖 START HERE - Complete Setup Guide](START-HERE.md)
+
+**⚡ Already familiar?** Jump to [Quick Start](#-quick-start-1) below.
 
 ---
 
@@ -233,6 +235,20 @@ This project demonstrates a **production-ready** deployment of a URL shortener a
 ---
 
 ## ✨ Key Features
+
+### What Makes This Production-Ready?
+
+| Feature | Demo/Tutorial | This Project |
+|---------|--------------|-------------|
+| **Deployment Strategy** | Manual or basic | ✅ Automated Blue/Green with CodeDeploy |
+| **Infrastructure** | Hardcoded values | ✅ Modular Terraform (9 reusable modules) |
+| **CI/CD** | Basic scripts | ✅ GitHub Actions with OIDC (no credentials) |
+| **Security** | HTTP, open ports | ✅ HTTPS only, least-privilege IAM, SGs |
+| **Monitoring** | None | ✅ CloudWatch Logs, health checks, alarms |
+| **Rollback** | Manual | ✅ Automatic on failure |
+| **Multi-Environment** | Single env | ✅ Dev/Prod with isolated state |
+| **Cleanup** | Manual deletion | ✅ Automated cleanup scripts |
+| **Documentation** | Basic README | ✅ Comprehensive docs + START-HERE guide |
 
 ### Infrastructure
 - 🔵 **Blue/Green Deployment** - Zero downtime with instant rollback
@@ -892,7 +908,21 @@ aws deploy stop-deployment \
 
 ## 🧹 Cleanup
 
-### Destroy All Resources
+### Automated Cleanup Scripts
+
+**Recommended Method:**
+```bash
+# Step 1: Destroy infrastructure (includes ECR image cleanup)
+cd scripts/03-cleanup
+./01-destroy-infrastructure.sh
+# Type 'destroy' to confirm
+
+# Step 2: Cleanup remaining resources (S3, DynamoDB state lock, Route53)
+./02-cleanup-resources.sh
+# Answer prompts for each resource
+```
+
+### Manual Cleanup
 
 ```bash
 cd terraform/environments/dev
@@ -980,6 +1010,30 @@ aws logs tail /ecs/url-shortener-dev --follow
 # - Wrong container port (should be 8000)
 # - Missing environment variables
 # - DynamoDB permissions
+```
+
+#### 6. ECR Repository Deletion Failed
+
+**Error:** `RepositoryNotEmptyException: The repository cannot be deleted because it still contains images`
+
+**Solution:**
+
+The ECR module now includes `force_delete = true` which automatically deletes all images when destroying infrastructure.
+
+If you're using an older version:
+```bash
+# Manual cleanup
+aws ecr batch-delete-image \
+  --repository-name url-shortener \
+  --region eu-north-1 \
+  --image-ids "$(aws ecr list-images \
+    --repository-name url-shortener \
+    --region eu-north-1 \
+    --query 'imageIds[*]' \
+    --output json)"
+
+# Then run terraform destroy again
+terraform destroy -auto-approve
 ```
 
 #### 5. CodeDeploy Deployment Failed
