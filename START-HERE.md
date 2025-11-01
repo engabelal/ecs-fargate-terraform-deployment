@@ -25,7 +25,7 @@ Edit the following files with your information:
 
 #### 1.1 GitHub Actions OIDC Script
 ```bash
-# File: scripts/03-setup/01-setup-github-actions-oidc.sh
+# File: scripts/01-setup/01-setup-github-actions-oidc.sh
 AWS_ACCOUNT_ID="YOUR_AWS_ACCOUNT_ID"
 GITHUB_REPO="your-username/your-repo-name"
 ```
@@ -43,7 +43,7 @@ subdomain       = "dev.your-domain.com"
 ### Step 2: Setup GitHub Actions (One-time)
 
 ```bash
-cd scripts/03-setup
+cd scripts/01-setup
 chmod +x 01-setup-github-actions-oidc.sh
 ./01-setup-github-actions-oidc.sh
 ```
@@ -166,7 +166,7 @@ To destroy everything and stop billing:
 
 ```bash
 # Step 1: Destroy infrastructure
-cd scripts/01-cleanup
+cd scripts/03-cleanup
 chmod +x 01-destroy-infrastructure.sh
 ./01-destroy-infrastructure.sh
 

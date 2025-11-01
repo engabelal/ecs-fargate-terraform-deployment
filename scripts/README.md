@@ -8,9 +8,9 @@ This directory contains automation scripts for setting up, deploying, and cleani
 
 ```
 scripts/
-├── 01-cleanup/     # Cleanup scripts
+├── 01-setup/       # Initial setup scripts
 ├── 02-deploy/      # Deployment scripts
-├── 03-setup/       # Initial setup scripts
+├── 03-cleanup/     # Cleanup scripts
 └── README.md       # This file
 ```
 
@@ -18,7 +18,7 @@ scripts/
 
 ## 🔧 Setup Scripts
 
-### 1. `03-setup/01-setup-github-actions-oidc.sh`
+### 1. `01-setup/01-setup-github-actions-oidc.sh`
 
 **Purpose:** Setup GitHub Actions OIDC provider and IAM role
 
@@ -32,7 +32,7 @@ scripts/
 
 **Usage:**
 ```bash
-cd scripts/03-setup
+cd scripts/01-setup
 chmod +x 01-setup-github-actions-oidc.sh
 ./01-setup-github-actions-oidc.sh
 ```
@@ -45,7 +45,7 @@ chmod +x 01-setup-github-actions-oidc.sh
 
 ---
 
-### 2. `03-setup/02-setup-terraform-backend.sh`
+### 2. `01-setup/02-setup-terraform-backend.sh`
 
 **Purpose:** Setup Terraform backend (S3 + DynamoDB)
 
@@ -55,7 +55,7 @@ chmod +x 01-setup-github-actions-oidc.sh
 
 **Usage:**
 ```bash
-cd scripts/03-setup
+cd scripts/01-setup
 chmod +x 02-setup-terraform-backend.sh
 ./02-setup-terraform-backend.sh
 ```
@@ -67,7 +67,7 @@ chmod +x 02-setup-terraform-backend.sh
 
 ---
 
-### 3. `03-setup/03-deploy-infrastructure.sh`
+### 3. `01-setup/03-deploy-infrastructure.sh`
 
 **Purpose:** Deploy AWS infrastructure using Terraform
 
@@ -86,7 +86,7 @@ chmod +x 02-setup-terraform-backend.sh
 
 **Usage:**
 ```bash
-cd scripts/03-setup
+cd scripts/01-setup
 chmod +x 03-deploy-infrastructure.sh
 ./03-deploy-infrastructure.sh
 ```
@@ -129,13 +129,13 @@ chmod +x 01-build-and-push-image.sh
 
 ## 🧹 Cleanup Scripts
 
-### 1. `01-cleanup/01-destroy-infrastructure.sh`
+### 1. `03-cleanup/01-destroy-infrastructure.sh`
 
 **Purpose:** Destroy all AWS infrastructure
 
 **Usage:**
 ```bash
-cd scripts/01-cleanup
+cd scripts/03-cleanup
 chmod +x 01-destroy-infrastructure.sh
 ./01-destroy-infrastructure.sh
 ```
@@ -149,7 +149,7 @@ chmod +x 01-destroy-infrastructure.sh
 
 ---
 
-### 2. `01-cleanup/02-cleanup-resources.sh`
+### 2. `03-cleanup/02-cleanup-resources.sh`
 
 **Purpose:** Cleanup remaining resources (ECR, Route53, S3)
 
@@ -158,7 +158,7 @@ chmod +x 01-destroy-infrastructure.sh
 
 **Usage:**
 ```bash
-cd scripts/01-cleanup
+cd scripts/03-cleanup
 chmod +x 02-cleanup-resources.sh
 ./02-cleanup-resources.sh
 ```
@@ -176,7 +176,7 @@ chmod +x 02-cleanup-resources.sh
 
 ```bash
 # 1. Setup GitHub Actions
-cd scripts/03-setup
+cd scripts/01-setup
 ./01-setup-github-actions-oidc.sh
 
 # 2. Setup Terraform Backend
@@ -200,7 +200,7 @@ git push origin main
 
 ```bash
 # 1. Destroy Infrastructure
-cd scripts/01-cleanup
+cd scripts/03-cleanup
 ./01-destroy-infrastructure.sh
 
 # 2. Cleanup Remaining Resources
@@ -244,6 +244,7 @@ sudo mv terraform /usr/local/bin/
 - Color-coded output for better readability
 - Interactive confirmations for destructive operations
 - Automatic AWS Account ID detection
+- All scripts work from any directory (automatic path detection)
 
 ---
 
