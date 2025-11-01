@@ -46,6 +46,9 @@ certificate_arn = "YOUR_ACM_CERTIFICATE_ARN"
 domain_name = "your-domain.com"
 subdomain   = "dev.your-domain.com"
 
+# ECR Configuration
+ecr_repository_name = "url-shortener"
+
 # Container Configuration
 container_image = "YOUR_AWS_ACCOUNT_ID.dkr.ecr.eu-north-1.amazonaws.com/url-shortener:latest"
 
