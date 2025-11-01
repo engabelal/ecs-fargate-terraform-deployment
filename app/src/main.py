@@ -371,4 +371,5 @@ def redirect_url(short_code: str):
         return RedirectResponse(url=response['Item']['original_url'])
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
-# Test deployment
+
+# Blue/Green Deployment Test - CodeDeploy v4.0
