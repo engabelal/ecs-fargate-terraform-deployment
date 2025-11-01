@@ -8,12 +8,17 @@ variable "environment" {
   type        = string
 }
 
-variable "cluster_name" {
+variable "codedeploy_role_arn" {
+  description = "CodeDeploy IAM role ARN"
+  type        = string
+}
+
+variable "ecs_cluster_name" {
   description = "ECS cluster name"
   type        = string
 }
 
-variable "service_name" {
+variable "ecs_service_name" {
   description = "ECS service name"
   type        = string
 }
@@ -23,17 +28,12 @@ variable "listener_arn" {
   type        = string
 }
 
-variable "target_group_blue_name" {
+variable "blue_target_group_name" {
   description = "Blue target group name"
   type        = string
 }
 
-variable "target_group_green_name" {
+variable "green_target_group_name" {
   description = "Green target group name"
-  type        = string
-}
-
-variable "codedeploy_role_arn" {
-  description = "CodeDeploy IAM role ARN"
   type        = string
 }

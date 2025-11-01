@@ -18,6 +18,14 @@ module "security" {
   vpc_id       = module.vpc.vpc_id
 }
 
+# ECR Module
+module "ecr" {
+  source = "../../modules/ecr"
+
+  repository_name = var.project_name
+  environment     = var.environment
+}
+
 # DynamoDB Module
 module "dynamodb" {
   source = "../../modules/dynamodb"
@@ -77,12 +85,12 @@ module "codedeploy" {
 
   project_name            = var.project_name
   environment             = var.environment
-  cluster_name            = module.ecs.cluster_name
-  service_name            = module.ecs.service_name
-  listener_arn            = module.alb.https_listener_arn
-  target_group_blue_name  = module.alb.target_group_blue_name
-  target_group_green_name = module.alb.target_group_green_name
   codedeploy_role_arn     = module.iam.codedeploy_role_arn
+  ecs_cluster_name        = module.ecs.cluster_name
+  ecs_service_name        = module.ecs.service_name
+  listener_arn            = module.alb.https_listener_arn
+  blue_target_group_name  = module.alb.target_group_blue_name
+  green_target_group_name = module.alb.target_group_green_name
 }
 
 # Route53 Module

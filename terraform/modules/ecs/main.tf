@@ -66,13 +66,17 @@ resource "aws_ecs_task_definition" "app" {
   }
 }
 
-# ECS Service to run the task definition
+# ECS Service with Blue/Green Deployment
 resource "aws_ecs_service" "app" {
   name            = "${var.project_name}-service-${var.environment}"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.app.arn
   desired_count   = var.desired_count
   launch_type     = "FARGATE"
+
+  deployment_controller {
+    type = "CODE_DEPLOY"
+  }
 
   network_configuration {
     subnets          = var.subnet_ids
@@ -86,9 +90,7 @@ resource "aws_ecs_service" "app" {
     container_port   = var.container_port
   }
 
-  deployment_controller {
-    type = "CODE_DEPLOY"
-  }
+  enable_execute_command = true
 
   lifecycle {
     ignore_changes = [task_definition, load_balancer]

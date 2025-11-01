@@ -23,7 +23,8 @@ output "dynamodb_table_name" {
   value       = module.dynamodb.table_name
 }
 
-output "codedeploy_app_name" {
-  description = "CodeDeploy application name"
-  value       = module.codedeploy.app_name
+output "ecr_repository_url" {
+  description = "ECR repository URL"
+  value       = module.ecr.repository_url
 }
+

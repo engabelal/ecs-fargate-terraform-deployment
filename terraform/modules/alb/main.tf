@@ -12,7 +12,7 @@ resource "aws_lb" "main" {
   }
 }
 
-# Target Group Blue
+# Blue Target Group
 resource "aws_lb_target_group" "blue" {
   name        = "${var.project_name}-tg-blue-${var.environment}"
   port        = 8000
@@ -29,13 +29,15 @@ resource "aws_lb_target_group" "blue" {
     matcher             = "200"
   }
 
+  deregistration_delay = 30
+
   tags = {
     Name        = "${var.project_name}-tg-blue-${var.environment}"
     Environment = var.environment
   }
 }
 
-# Target Group Green
+# Green Target Group
 resource "aws_lb_target_group" "green" {
   name        = "${var.project_name}-tg-green-${var.environment}"
   port        = 8000
@@ -51,6 +53,8 @@ resource "aws_lb_target_group" "green" {
     interval            = 30
     matcher             = "200"
   }
+
+  deregistration_delay = 30
 
   tags = {
     Name        = "${var.project_name}-tg-green-${var.environment}"
