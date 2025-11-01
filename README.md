@@ -10,7 +10,20 @@
 [![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?logo=github-actions&logoColor=white)](https://github.com/features/actions)
 [![DynamoDB](https://img.shields.io/badge/DynamoDB-NoSQL-4053D6?logo=amazon-dynamodb&logoColor=white)](https://aws.amazon.com/dynamodb/)
 [![CodeDeploy](https://img.shields.io/badge/CodeDeploy-Blue%2FGreen-FF9900?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/codedeploy/)
+[![ALB](https://img.shields.io/badge/ALB-Load%20Balancer-FF9900?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/elasticloadbalancing/)
+[![ECR](https://img.shields.io/badge/ECR-Container%20Registry-FF9900?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/ecr/)
+[![Route53](https://img.shields.io/badge/Route53-DNS-FF9900?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/route53/)
+[![ACM](https://img.shields.io/badge/ACM-SSL%2FTLS-FF9900?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/certificate-manager/)
+[![CloudWatch](https://img.shields.io/badge/CloudWatch-Monitoring-FF9900?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/cloudwatch/)
+[![IAM](https://img.shields.io/badge/IAM-Security-FF9900?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/iam/)
+[![VPC](https://img.shields.io/badge/VPC-Networking-FF9900?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/vpc/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+---
+
+## 🎬 Quick Start
+
+**New to this project?** → [📖 START HERE - Step-by-Step Guide](START-HERE.md)
 
 ---
 
@@ -22,8 +35,77 @@
 
 ---
 
+## 🎯 What is This Application?
+
+### URL Shortener Service
+
+A **production-grade URL shortening service** built with modern cloud-native technologies. Think of it as a mini bit.ly or TinyURL.
+
+**What it does:**
+- 🔗 **Shortens URLs** - Converts long URLs into short, shareable links
+- 📊 **Tracks Statistics** - Monitors click counts and usage
+- ⚡ **Fast & Reliable** - Built on AWS serverless infrastructure
+- 🔒 **Secure** - HTTPS-only with SSL/TLS encryption
+
+**Example:**
+```
+Long URL:  https://example.com/very/long/path/to/resource?param1=value&param2=value
+           ↓
+Short URL: https://dev.awsapp.cloudycode.dev/abc123
+```
+
+### Technology Stack
+
+**Application Layer:**
+- **FastAPI** - Modern Python web framework (async, high-performance)
+- **Uvicorn** - ASGI server for production
+- **Python 3.11** - Latest stable Python version
+
+**Data Storage:**
+- **DynamoDB** - NoSQL database for URL mappings
+  - **Key:** `short_code` (e.g., "abc123")
+  - **Attributes:** `original_url`, `created_at`, `click_count`
+  - **Why DynamoDB?** Serverless, auto-scaling, single-digit millisecond latency
+
+**Infrastructure:**
+- **ECS Fargate** - Serverless containers (no EC2 to manage)
+- **Application Load Balancer** - Distributes traffic, SSL termination
+- **Route53** - DNS management
+- **ECR** - Docker image registry
+- **CloudWatch** - Logs and monitoring
+
+**Deployment:**
+- **Terraform** - Infrastructure as Code (9 modular components)
+- **CodeDeploy** - Blue/Green deployments with zero downtime
+- **GitHub Actions** - Automated CI/CD pipeline
+
+### Data Flow
+
+```
+1. User Request
+   ↓
+2. Route53 DNS → Resolves domain to ALB
+   ↓
+3. Application Load Balancer → SSL termination, routes to ECS
+   ↓
+4. ECS Fargate Task → FastAPI application
+   ↓
+5. DynamoDB → Stores/retrieves URL mappings
+   ↓
+6. Response → Returns shortened URL or redirects
+```
+
+**Example API Endpoints:**
+- `GET /` - Home page with UI
+- `GET /health` - Health check for ALB
+- `POST /api/shorten` - Create short URL
+- `GET /{short_code}` - Redirect to original URL
+
+---
+
 ## 📋 Table of Contents
 
+- [What is This Application?](#-what-is-this-application)
 - [Overview](#-overview)
 - [Architecture](#-architecture)
 - [Key Features](#-key-features)

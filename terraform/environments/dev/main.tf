@@ -15,7 +15,7 @@ module "security" {
 
   project_name = var.project_name
   environment  = var.environment
-  vpc_id       = module.vpc.vpc_id
+  vpc_id       = module.vpc.vpc_id # depend on VPC module
 }
 
 # ECR Module
@@ -49,8 +49,8 @@ module "alb" {
 
   project_name          = var.project_name
   environment           = var.environment
-  vpc_id                = module.vpc.vpc_id
-  subnet_ids            = module.vpc.public_subnet_ids
+  vpc_id                = module.vpc.vpc_id            # depend on VPC module
+  subnet_ids            = module.vpc.public_subnet_ids # depend on VPC module
   alb_security_group_id = module.security.alb_security_group_id
   certificate_arn       = var.certificate_arn
 }

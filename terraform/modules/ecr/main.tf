@@ -1,7 +1,7 @@
 # ECR Repository
 resource "aws_ecr_repository" "main" {
   name                 = var.repository_name
-  image_tag_mutability = "MUTABLE"
+  image_tag_mutability = "MUTABLE" # Means tags can be overwritten and unmtuable means tags cannot be overwritten
 
   image_scanning_configuration {
     scan_on_push = true

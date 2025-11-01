@@ -75,7 +75,7 @@ resource "aws_ecs_service" "app" {
   launch_type     = "FARGATE"
 
   deployment_controller {
-    type = "CODE_DEPLOY"
+    type = "CODE_DEPLOY" # Using CodeDeploy for Blue/Green deployments
   }
 
   network_configuration {
