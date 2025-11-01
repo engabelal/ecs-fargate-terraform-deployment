@@ -53,7 +53,11 @@ echo -e "${GREEN}✓ Logged in to ECR${NC}"
 
 echo -e "\n${YELLOW}Step 2: Building Docker image...${NC}"
 
-cd app
+# Get script directory and project root
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$( cd "$SCRIPT_DIR/../.." && pwd )"
+
+cd "$PROJECT_ROOT/app"
 
 docker build --platform linux/amd64 -t ${ECR_REPOSITORY}:${IMAGE_TAG} .
 

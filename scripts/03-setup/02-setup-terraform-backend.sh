@@ -35,7 +35,11 @@ echo -e "${YELLOW}AWS Region: ${AWS_REGION}${NC}"
 
 echo -e "\n${YELLOW}Step 1: Navigating to backend-setup directory...${NC}"
 
-cd terraform/backend-setup
+# Get script directory and project root
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$( cd "$SCRIPT_DIR/../.." && pwd )"
+
+cd "$PROJECT_ROOT/terraform/backend-setup"
 
 # ============================================================================
 # STEP 2: Initialize Terraform
