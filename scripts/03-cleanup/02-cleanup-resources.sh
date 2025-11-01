@@ -100,10 +100,41 @@ else
 fi
 
 # ============================================================================
-# STEP 3: Delete S3 Backend Bucket (Optional)
+# STEP 3: Delete DynamoDB State Lock Table
 # ============================================================================
 
-echo -e "\n${YELLOW}Step 3: Cleaning up S3 backend...${NC}"
+echo -e "\n${YELLOW}Step 3: Cleaning up DynamoDB state lock table...${NC}"
+echo -e "${YELLOW}Do you want to delete DynamoDB state lock table? (yes/no)${NC}"
+read -r DELETE_DYNAMODB
+
+if [ "$DELETE_DYNAMODB" = "yes" ]; then
+  TABLE_NAME="terraform-state-lock"
+  
+  # Check if table exists
+  TABLE_EXISTS=$(aws dynamodb describe-table \
+    --table-name ${TABLE_NAME} \
+    --region ${AWS_REGION} 2>/dev/null || echo "")
+  
+  if [ -n "$TABLE_EXISTS" ]; then
+    echo -e "${YELLOW}Deleting DynamoDB table...${NC}"
+    
+    aws dynamodb delete-table \
+      --table-name ${TABLE_NAME} \
+      --region ${AWS_REGION}
+    
+    echo -e "${GREEN}✓ DynamoDB table deleted${NC}"
+  else
+    echo -e "${GREEN}✓ No DynamoDB table found${NC}"
+  fi
+else
+  echo -e "${YELLOW}⊘ Skipping DynamoDB cleanup${NC}"
+fi
+
+# ============================================================================
+# STEP 4: Delete S3 Backend Bucket (Optional)
+# ============================================================================
+
+echo -e "\n${YELLOW}Step 4: Cleaning up S3 backend...${NC}"
 echo -e "${RED}⚠️  This will delete Terraform state!${NC}"
 echo -e "${YELLOW}Do you want to delete S3 backend bucket? (yes/no)${NC}"
 read -r DELETE_S3
@@ -133,7 +164,7 @@ else
 fi
 
 # ============================================================================
-# STEP 4: Summary
+# STEP 5: Summary
 # ============================================================================
 
 echo -e "\n${GREEN}========================================${NC}"
@@ -142,5 +173,6 @@ echo -e "${GREEN}========================================${NC}"
 echo -e "\n${YELLOW}Verify in AWS Console:${NC}"
 echo -e "1. ECR: https://console.aws.amazon.com/ecr"
 echo -e "2. Route53: https://console.aws.amazon.com/route53"
-echo -e "3. S3: https://console.aws.amazon.com/s3"
-echo -e "4. CloudWatch Logs: https://console.aws.amazon.com/cloudwatch"
+echo -e "3. DynamoDB: https://console.aws.amazon.com/dynamodb"
+echo -e "4. S3: https://console.aws.amazon.com/s3"
+echo -e "5. CloudWatch Logs: https://console.aws.amazon.com/cloudwatch"
