@@ -1031,7 +1031,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - GitHub: [@engabelal](https://github.com/engabelal)
 - LinkedIn: [Ahmed Belal](https://linkedin.com/in/engabelal)
-- Email: eng.ahmed.belal@example.com
 
 ---
 
